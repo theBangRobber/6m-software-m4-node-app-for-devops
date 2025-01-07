@@ -30,6 +30,9 @@ jobs:
       - image: cimg/node:16.10
     steps:
       - checkout
+      - setup_remote_docker:
+          version: default
+          docker_layer_caching: true
       - run: |
           echo "Building Docker image"
           docker build -t thebangrobber/education-space:$CIRCLE_SHA1 .
