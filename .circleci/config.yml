@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.0.1
+  docker: circleci/docker@2.8.1
 
 jobs:
   build:
@@ -24,6 +25,20 @@ jobs:
       - run: |
           echo "Running tests"
           npm run test
+  publish:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - checkout
+      - run: |
+          echo "Building Docker image"
+          docker build -t thebangrobber/education-space:$CIRCLE_SHA1 .
+      - run: |
+          echo "Logging in to Docker Hub"
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+      - run: |
+          echo "Pushing Docker image to Docker Hub"
+          docker push your-docker-username/your-image-name:$CIRCLE_SHA1
 
 workflows:
   simple_workflow:
@@ -32,3 +47,6 @@ workflows:
       - test:
           requires:
             - build
+      - publish:
+          requires:
+            - test
