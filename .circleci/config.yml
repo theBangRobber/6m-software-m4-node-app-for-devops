@@ -15,7 +15,7 @@ jobs:
           echo "Installing dependencies..."
           npm install
 
-  workflows:
-    simple_workflow:
-      jobs:
-        - build
+workflows:
+  simple_workflow:
+    jobs:
+      - build
