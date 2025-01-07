@@ -41,7 +41,7 @@ jobs:
           echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
       - run: |
           echo "Pushing Docker image to Docker Hub"
-          docker push thebangrobber/:$CIRCLE_SHA1
+          docker push thebangrobber/education-space:$CIRCLE_SHA1
 
 workflows:
   simple_workflow:
