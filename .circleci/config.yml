@@ -27,7 +27,7 @@ jobs:
           npm run test
   publish:
     docker:
-      - image: cimg/node:16.10
+      - image: cimg/base:stable
     steps:
       - checkout
       - setup_remote_docker:
