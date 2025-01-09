@@ -74,11 +74,11 @@ workflows:
           filters:
             branches:
               only:
-                - release
+                - release # Publish only when 'release' branch is updated
       - deploy:
           requires:
             - publish
           filters:
             branches:
               only:
-                - release
+                - release # Deploy only when 'release' branch is updated
