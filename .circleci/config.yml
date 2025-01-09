@@ -45,10 +45,6 @@ jobs:
       - run: |
           echo "Pushing Docker image to Docker Hub"
           docker push thebangrobber/education-space:$CIRCLE_SHA1
-    filters:
-      branches:
-        only:
-          - release
 
   deploy:
     docker:
@@ -64,10 +60,6 @@ jobs:
             heroku stack:set container -a andrewto-su-devops
             heroku container:push web -a andrewto-su-devops
             heroku container:release web -a andrewto-su-devops
-    filters:
-      branches:
-        only:
-          - release
 
 workflows:
   simple_workflow:
@@ -79,6 +71,14 @@ workflows:
       - publish:
           requires:
             - test
+          filters:
+            branches:
+              only:
+                - release
       - deploy:
           requires:
             - publish
+          filters:
+            branches:
+              only:
+                - release
