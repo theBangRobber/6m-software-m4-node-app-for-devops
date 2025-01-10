@@ -61,6 +61,69 @@ jobs:
             heroku container:push web -a andrewto-su-devops
             heroku container:release web -a andrewto-su-devops
 
+version: 2.1
+
+orbs:
+  node: circleci/node@5.0.1
+  docker: circleci/docker@2.8.1
+  heroku: circleci/heroku@2.0.0
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run: |
+          echo "Install dependencies"
+          npm install
+
+  test:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run: |
+          echo "Running tests"
+          npm run test
+
+  publish:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+          docker_layer_caching: true
+      - run: |
+          echo "Building Docker image"
+          docker build -t thebangrobber/education-space:$CIRCLE_TAG .
+      - run: |
+          echo "Logging in to Docker Hub"
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+      - run: |
+          echo "Pushing Docker image to Docker Hub"
+          docker push thebangrobber/education-space:$CIRCLE_TAG
+
+  deploy:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - setup_remote_docker
+      - heroku/install
+      - checkout
+      - run:
+          name: Heroku Container Push
+          command: |
+            heroku container:login
+            heroku stack:set container -a andrewto-su-devops
+            heroku container:push web -a andrewto-su-devops
+            heroku container:release web -a andrewto-su-devops
+
 workflows:
   simple_workflow:
     jobs:
@@ -86,3 +149,10 @@ workflows:
                 - release
             tags:
               only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i
+    filters:
+      branches:
+        only:
+          - release
+      tags:
+        only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i
+
