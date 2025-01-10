@@ -77,9 +77,11 @@ workflows:
           filters:
             tags:
               only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i # Publish only when a semantic Git tag is created
+          tag_name: << pipeline.git.tag >>
       - deploy:
           requires:
             - publish
           filters:
             tags:
               only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i # Deploy only when a semantic Git tag is created
+          tag_name: << pipeline.git.tag >>
