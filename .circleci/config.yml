@@ -50,6 +50,9 @@ jobs:
           docker push thebangrobber/education-space:${<< parameters.tag_name >>}
 
   deploy:
+    parameters:
+      tag_name:
+        type: string
     docker:
       - image: cimg/node:16.10
     steps:
