@@ -5,6 +5,11 @@ orbs:
   docker: circleci/docker@2.8.1
   heroku: circleci/heroku@2.0.0
 
+parameters:
+  docker-tag:
+    type: string
+    default: "${CIRCLE_TAG}"
+
 jobs:
   build:
     docker:
@@ -38,16 +43,13 @@ jobs:
           docker_layer_caching: true
       - run: |
           echo "Building Docker image with Git tag"
-          docker build -t thebangrobber/education-space:${CIRCLE_TAG} .
+          docker build -t thebangrobber/education-space:<< pipeline.parameters.docker-tag >> .
       - run: |
           echo "Logging in to Docker Hub"
           echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
       - run: |
           echo "Pushing Docker image with Git tag to Docker Hub"
-          docker push thebangrobber/education-space:${CIRCLE_TAG}
-    filters:
-      tags:
-        only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i # Only trigger for semantic version tags
+          docker push thebangrobber/education-space:<< pipeline.parameters.docker-tag >>
 
   deploy:
     docker:
@@ -63,12 +65,10 @@ jobs:
             heroku stack:set container -a andrewto-su-devops
             heroku container:push web -a andrewto-su-devops
             heroku container:release web -a andrewto-su-devops
-    filters:
-      tags:
-        only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i # Only trigger for semantic version tags
 
 workflows:
-  simple_workflow:
+  version: 2
+  build-test-deploy:
     jobs:
       - build
       - test:
@@ -77,6 +77,16 @@ workflows:
       - publish:
           requires:
             - test
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/i
       - deploy:
           requires:
             - publish
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/i
