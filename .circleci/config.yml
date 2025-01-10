@@ -67,26 +67,41 @@ jobs:
             heroku container:release web -a andrewto-su-devops
 
 workflows:
-  version: 2
-  build-test-deploy:
+  simple_workflow:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only:
+                - main
+                - release
       - test:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only:
+                - main
+                - release
       - publish:
           requires:
             - test
           filters:
-            branches:
-              ignore: /.*/
             tags:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+$/i
+            branches:
+              only:
+                - release
       - deploy:
           requires:
             - publish
           filters:
-            branches:
-              ignore: /.*/
             tags:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+$/i
+            branches:
+              only:
+                - release
