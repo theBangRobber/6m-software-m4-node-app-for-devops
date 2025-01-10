@@ -45,6 +45,9 @@ jobs:
       - run: |
           echo "Pushing Docker image with Git tag to Docker Hub"
           docker push thebangrobber/education-space:${CIRCLE_TAG}
+    filters:
+      tags:
+        only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i # Only trigger for semantic version tags
 
   deploy:
     docker:
@@ -60,6 +63,9 @@ jobs:
             heroku stack:set container -a andrewto-su-devops
             heroku container:push web -a andrewto-su-devops
             heroku container:release web -a andrewto-su-devops
+    filters:
+      tags:
+        only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i # Only trigger for semantic version tags
 
 workflows:
   simple_workflow:
@@ -74,6 +80,3 @@ workflows:
       - deploy:
           requires:
             - publish
-    filters:
-      tags:
-        only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i # Apply the filter to the entire workflow
