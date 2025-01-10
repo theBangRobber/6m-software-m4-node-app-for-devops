@@ -96,6 +96,7 @@ workflows:
             branches:
               only:
                 - release
+              ignore: /.*/ # Add this to ensure it only runs on tags and release branch
       - deploy:
           requires:
             - publish
@@ -105,3 +106,4 @@ workflows:
             branches:
               only:
                 - release
+              ignore: /.*/ # Add this to ensure it only runs on tags and release branch
