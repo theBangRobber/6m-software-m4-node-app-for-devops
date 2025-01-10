@@ -38,13 +38,13 @@ jobs:
           docker_layer_caching: true
       - run: |
           echo "Building Docker image"
-          docker build -t thebangrobber/education-space:$CIRCLE_TAG .
+          docker build -t thebangrobber/education-space:$CIRCLE_SHA1 .
       - run: |
           echo "Logging in to Docker Hub"
           echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
       - run: |
           echo "Pushing Docker image to Docker Hub"
-          docker push thebangrobber/education-space:$CIRCLE_TAG
+          docker push thebangrobber/education-space:$CIRCLE_SHA1
 
   deploy:
     docker:
@@ -86,9 +86,3 @@ workflows:
                 - release
             tags:
               only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i
-    filters:
-      branches:
-        only:
-          - release
-      tags:
-        only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i
