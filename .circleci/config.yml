@@ -75,11 +75,27 @@ jobs:
       - snyk/scan:
           docker-image-name: $IMAGE_NAME
 
+  codescan:
+    docker:
+      - image: cimg/node:16.10
+    environment:
+      IMAGE_NAME: thebangrobber/education-space
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check
+      - snyk/install
+      - run: |
+          snyk code test
+
 workflows:
   simple_workflow:
     jobs:
       - build
       - scan:
+          requires:
+            - build
+      - codescan:
           requires:
             - build
       - test:
