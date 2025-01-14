@@ -61,28 +61,45 @@ jobs:
             heroku container:push web -a andrewto-su-devops
             heroku container:release web -a andrewto-su-devops
 
+  scan:
+    docker:
+      - image: cimg/node:16.10
+    environment:
+      IMAGE_NAME: thebangrobber/education-space
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check
+      - run: docker build -t $IMAGE_NAME .
+      - snyk/scan:
+          docker-image-name: $IMAGE_NAME
+
 workflows:
   simple_workflow:
     jobs:
       - build
-      - test:
+      - scan:
           requires:
             - build
-      - publish:
+      - test:
           requires:
-            - test
-          filters:
-            branches:
-              only:
-                - release
-            tags:
-              only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i
-      - deploy:
-          requires:
-            - publish
-          filters:
-            branches:
-              only:
-                - release
-            tags:
-              only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i
+            - scan
+
+      # - publish:
+      #     requires:
+      #       - test
+      #     filters:
+      #       branches:
+      #         only:
+      #           - release
+      #       tags:
+      #         only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i
+      # - deploy:
+      #     requires:
+      #       - publish
+      #     filters:
+      #       branches:
+      #         only:
+      #           - release
+      #       tags:
+      #         only: /^v?[0-9]+\.[0-9]+\.[0-9]+$/i
